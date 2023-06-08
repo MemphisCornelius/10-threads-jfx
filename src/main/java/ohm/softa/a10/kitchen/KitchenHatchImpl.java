@@ -40,33 +40,33 @@ public class KitchenHatchImpl implements KitchenHatch {
 	@Override
 	public Dish dequeueDish(long timeout) {
 		Dish dish;
-		synchronized (this) {
+		synchronized (dishes) {
 			while(getDishesCount() == 0) {
 				try {
-					wait(timeout);
+					dishes.wait(timeout);
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
 			}
 			dish = dishes.pop();
-			notifyAll();
+			dishes.notifyAll();
 		}
 		return dish;
 	}
 
 	@Override
 	public void enqueueDish(Dish m) {
-		synchronized (this) {
+		synchronized (dishes) {
 			while (getDishesCount() == maxMeals) {
 				try {
-					wait();
+					dishes.wait();
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
 			}
 
 			dishes.add(m);
-			notifyAll();
+			dishes.notifyAll();
 		}
 	}
 
